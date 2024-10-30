@@ -1,4 +1,4 @@
-package Com;
+package Classes.Com;
 
 import java.lang.*;
 import java.util.*;
