@@ -52,4 +52,76 @@ class CarList {
         return -1; 
     }
     
+    public void addCar(String carID, String brandID, String color, String frameID, String engineID) {
+        if (searchID(carID) != -1 || searchFrame(frameID) != -1 || searchEngine(engineID) != -1) {
+            System.out.println("Error: Car ID, frame ID, or engine ID is duplicated.");
+            return;
+        }
+        if (color.isEmpty()|| !frameID.matches("F\\d{5}") || !engineID.matches("E\\d{5}")) {
+            System.out.println("Error: Invalid car details.");
+            return;
+        }
+        Brand brand = brandList.getBrandByID(brandID);
+        if (brand == null) {
+            System.out.println("Error: Brand ID does not exist.");
+            return;
+        }
+        cars.add(new Car(carID, brand, color, frameID, engineID));
+        System.out.println("Car added successfully.");
+    }
+
+    public boolean removeCar(String carID) {
+        int pos = searchID(carID);
+        if (pos == -1) {
+            System.out.println("Car not found.");
+            return false;
+        }
+        cars.remove(pos);
+        System.out.println("Car removed successfully.");
+        return true;
+    }
+
+    public boolean updateCar(String carID, String newBrandID, String newColor, String newFrameID, String newEngineID) {
+        int pos = searchID(carID);
+        if (pos == -1) {
+            System.out.println("Car not found.");
+            return false;
+        }
+        Car car = cars.get(pos);
+        if (searchFrame(newFrameID) != -1 || searchEngine(newEngineID) != -1) {
+            System.out.println("Error: Frame ID or engine ID is duplicated.");
+            return false;
+        }
+        Brand brand = brandList.getBrandByID(newBrandID);
+        if (brand == null) {
+            System.out.println("Error: Brand ID does not exist.");
+            return false;
+        }
+        car.setBrand(brand);
+        car.setColor(newColor);
+        car.setFrameID(newFrameID);
+        car.setEngineID(newEngineID);
+        System.out.println("Car updated successfully.");
+        return true;
+    }
+
+    public void listCars() {
+        cars.sort(Comparator.comparing(car -> car.getBrand().getBrandName()));
+        for (Car car : cars) {
+            System.out.println(car.screenString());
+        }
+    }
+
+    public void printBasedBrandName(String partOfBrandName) {
+        int count = 0;
+        for (Car car : cars) {
+            if (car.getBrand().getBrandName().contains(partOfBrandName)) {
+                System.out.println(car.screenString());
+                count++;
+            }
+        }
+        if (count == 0) {
+            System.out.println("No car found with the specified brand name part.");
+        }
+    }
 }    
