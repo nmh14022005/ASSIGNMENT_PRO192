@@ -7,7 +7,8 @@ import java.io.*;
  *
  * @author NguyenVietThangHe190928
  */
-class CarList {
+public class CarList Car {
+    
     private ArrayList<Car> cars = new ArrayList<>();
     private BrandList brandList; 
 
@@ -61,7 +62,7 @@ class CarList {
             System.out.println("Error: Invalid car details.");
             return;
         }
-        Brand brand = brandList.getBrandByID(brandID);
+        Brand brand = brandList.getBrandID(brandID);
         if (brand == null) {
             System.out.println("Error: Brand ID does not exist.");
             return;
@@ -92,7 +93,7 @@ class CarList {
             System.out.println("Error: Frame ID or engine ID is duplicated.");
             return false;
         }
-        Brand brand = brandList.getBrandByID(newBrandID);
+        Brand brand = brandList.getBrandID(newBrandID);
         if (brand == null) {
             System.out.println("Error: Brand ID does not exist.");
             return false;
