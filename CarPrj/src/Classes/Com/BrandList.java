@@ -1,166 +1,166 @@
 package Classes.Com;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
-public class BrandList {
+public class BrandList extends ArrayList <Brand> {
+    private String brandID, brandName, soundBrand;
+    private double price;
+    private int pos;
+    Scanner scanner = new Scanner(System.in);
+    PrintWriter pw;
+    BufferedReader br;
+    
 
-    private ArrayList<Brand> brands;
-
-    //khởi tạo BrandList
-    public BrandList() {
-        brands = new ArrayList<>();
+    public boolean loadFromFile (String fileName) throws IOException{
+        try {
+            br = new BufferedReader(new FileReader(fileName));
+            String [] arr;
+            String line = br.readLine();
+            while ((line != null)) {
+                arr = line.split(",");
+                brandID = arr[0].trim();
+                brandName = arr[1].trim();
+                soundBrand = arr[2].split(":")[0].trim();
+                price = Double.parseDouble(arr[2].split(":")[1].trim());
+                this.add(new Brand(brandID, brandName, soundBrand, price));
+                line = br.readLine();
+            }
+            br.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            System.out.println("File " + fileName + " not found !");
+        }
+        return false;
     }
 
-    // tải dữ liệu từ file vào list
-    public boolean loadFromFile(String filename) {
-        File file = new File(filename);
-
-        // kiểm tra sự tồn tại
-        if (!file.exists()) {
-            System.out.println("File not found.");
-            return false;
+    public boolean saveToFile (String fileName) {
+        try {
+            pw = new PrintWriter(new FileWriter(fileName));
+            for (Brand i: this) {
+                pw.println(i);
+            }
+            pw.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return false;
+    }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
+    //Open the file based on the filename to write data in line-by-line text format
+    public int searchID (String bID) {
+        for (int i = 0; i < this.size(); i++) {
+            if (bID.equals(this.get(i).getBrandID())) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
-            while ((line = br.readLine()) != null) {
-                // chia làm các phần
-                String[] parts = line.split(",");
-                if (parts.length == 4) {
-                    String brandID = parts[0];
-                    String brandName = parts[1];
-                    String soundBrand = parts[2];
-                    double price = Double.parseDouble(parts[3]);
+    //Transform the list to a menu, the user will choose a brand from this menu
+    public Brand getUserChoice () {
+        Menu menu = new Menu();
+        return (Brand) menu. ref_getChoice(this);
+    }
 
-                    // tạo một đối tượng brand mới và thêm vào danh sách
-                    Brand brand = new Brand(brandID, brandName, soundBrand, price);
-                    brands.add(brand);
+    //Add a new Brand to the list
+    public void addBrand () {
+        boolean checkBrandID = false;
+        //System.out.println("Test: " + this.get(2).getBrandID());
+        do {
+            System.out.print("Input brand ID: ");
+            brandID = scanner.nextLine();
+            for (int i = 0; i < this.size(); i++) {
+                if (brandID.equals(this.get(i).getBrandID())) {
+                    checkBrandID = true;
+                    System.out.println("This brand ID is existed. Try another one!");
+                    break;
+                } else {
+                    checkBrandID = false;
                 }
             }
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    // lưu danh sách các thương hiệu vào file
-    public boolean saveToFile(String filename) {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
-            // ghi thương hiệu trong danh sách vào file
-            for (Brand brand : brands) {
-                bw.write(brand.toString());
-                bw.newLine();
+        } while (checkBrandID == true);
+        do {
+            System.out.print("Input brand name: ");
+            brandName = scanner.nextLine();
+            if (brandName.equals("") != true) {
+                break;
             }
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
-    public int searchID(String brandID) {
-        int n = brands.size();
-        // kiểm tra danh sách thương hiệu ứng với ID
-        for (int i = 0; i < n; i++) {
-            if (brands.get(i).getBrandID().equals(brandID)) {
-                return i;  // trả kết quả về nếu thấy
+            System.out.println("The brand name must not be null. Try again !");
+        } while (true);
+        do {
+            System.out.print("Input sound brand: ");
+            soundBrand = scanner.nextLine();
+            if (soundBrand.equals("") != true) {
+                break;
             }
-        }
-        return -1;  // trả về kết quả -1 nếu không tìm thấy
+            System.out.println("The sound brand must not be null. Try again !");
+        } while (true);
+        do {
+            System.out.print("Input price: ");
+            try {
+                price = Double.parseDouble(scanner.nextLine());
+                if (price <= 0) {
+                    System.out.println("The price must not be null. Try again !");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("The price must be a number. Try again !");
+                price = 0;
+            }
+        } while (price == 0);
+        this.add(new Brand(brandID, brandName, soundBrand, price));
+        System.out.println("Brand has added successfully");
     }
 
-    // Phương thức để lấy lựa chọn của người dùng từ menu
-    public Brand getUserChoice() {
-        Menu mnu = new Menu();
-        return (Brand) mnu.getChoice();
+    //Update brand_name, sound_brand, price of an existed brand
+    public void updateBrand () {
+        do {
+            System.out.print("Input brand ID: ");
+            brandID = scanner.nextLine();
+            pos = searchID (brandID);
+            if (pos != -1) {
+                break;
+            }
+            System.out.println("Not found !");
+        } while (true);
+        do {
+            System.out.print("Input brand name: ");
+            brandName = scanner.nextLine();
+            if (brandName.equals("") != true) {
+                break;
+            }
+            System.out.println("The brand name must not be null. Try again !");
+        } while (true);
+        do {
+            System.out.print("Input sound brand: ");
+            soundBrand = scanner.nextLine();
+            if (soundBrand.equals("") != true) {
+                break;
+            }
+            System.out.println("The sound brand must not be null. Try again !");
+        } while (true);
+        do {
+            System.out.print("Input price: ");
+            try {
+                price = Double.parseDouble(scanner.nextLine());
+                if (price <= 0) {
+                    System.out.println("The price must not be null. Try again !");
+                    price = 0;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("The price must be a number. Try again !");
+                price = 0;
+            }
+        } while (price == 0);
+        this.get(0).setUpdatedBrand(brandName, soundBrand, price);
+        System.out.println("Brand has updated successfully !");
     }
 
-    // Phương thức để thêm thương hiệu mới vào danh sách
-    public void addBrand() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter Brand ID: ");
-        String id = scanner.nextLine();
-        if (searchID(id) >= 0) {
-            System.out.println("Brand ID already exists.");
-            return;
-        }
-
-        System.out.print("Enter Brand Name: ");
-        String brandName = scanner.nextLine();
-        if (brandName.isBlank()) {
-            System.out.println("Brand name cannot be blank.");
-            return;
-        }
-
-        System.out.print("Enter Sound Brand: ");
-        String soundBrand = scanner.nextLine();
-        if (soundBrand.isBlank()) {
-            System.out.println("Sound brand cannot be blank.");
-            return;
-        }
-
-        System.out.print("Enter Price: ");
-        double price = scanner.nextDouble();
-        if (price <= 0) {
-            System.out.println("Price must be greater than 0.");
-            return;
-        }
-
-        Brand newBrand = new Brand(id, brandName, soundBrand, price);
-        brands.add(newBrand);
-        System.out.println("Brand added successfully.");
-    }
-
-    // Phương thức để cập nhật thương hiệu hiện có
-    public void updateBrand() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter Brand ID to update: ");
-        String id = scanner.nextLine();
-        int pos = searchID(id);
-
-        if (pos < 0) {
-            System.out.println("Not found!");
-            return;
-        }
-
-        System.out.print("Enter new Brand Name: ");
-        String brandName = scanner.nextLine();
-        if (brandName.isBlank()) {
-            System.out.println("Brand name cannot be blank.");
-            return;
-        }
-
-        System.out.print("Enter new Sound Brand: ");
-        String soundBrand = scanner.nextLine();
-        if (soundBrand.isBlank()) {
-            System.out.println("Sound brand cannot be blank.");
-            return;
-        }
-
-        System.out.print("Enter new Price: ");
-        double price = scanner.nextDouble();
-        if (price <= 0) {
-            System.out.println("Price must be greater than 0.");
-            return;
-        }
-
-        Brand brandToUpdate = brands.get(pos);
-        brandToUpdate.setBrandName(brandName);
-        brandToUpdate.setSoundBrand(soundBrand);
-        brandToUpdate.setPrice(price);
-        System.out.println("Brand updated successfully.");
-    }
-
-    // Phương thức để liệt kê tất cả các thương hiệu
+    //Show the list of the brands
     public void listBrands() {
-        int n = brands.size();
-        for (int i = 0; i < n; i++) {
-            System.out.println(brands.get(i));
+        for (int i = 0; i < this.size(); i++) {
+            System.out.println(this.get(i));
         }
     }
-
 }
