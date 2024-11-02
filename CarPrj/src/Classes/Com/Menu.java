@@ -9,36 +9,37 @@ import java.io.*;
  * @author nmh
  */
 public class Menu {
-    // Phương thức lấy lựa chọn từ người dùng dựa trên danh sách các lựa chọn
-
-    public int int_getChoice(ArrayList<String> options) {
-        Scanner scanner = new Scanner(System.in);
-        int response = -1;
-        int N = options.size(); // Số lượng lựa chọn trong danh sách
-
-        // Hiển thị danh sách lựa chọn cho người dùng
-        for (int i = 0; i < N; i++) {
-            System.out.println((i + 1) + ". " + options.get(i));
+    private int response;
+    private Scanner scanner = new Scanner (System.in);
+    
+    //For the menu list
+    public int int_getChoice (ArrayList <String> options) {
+        for (String i: options) {
+            System.out.println(i);
         }
-
-        // Yêu cầu người dùng chọn một lựa chọn hợp lệ
-        System.out.print("Please choose an option 1.." + N + ": ");
-
-        // Đảm bảo rằng người dùng nhập một số hợp lệ
-        boolean validInput = false;
-        while (!validInput) {
-            try {
-                response = Integer.parseInt(scanner.nextLine());
-                if (response >= 1 && response <= N) {
-                    validInput = true;
-                } else {
-                    System.out.print("Invalid choice. Please choose an option 1.." + N + ": ");
-                }
-            } catch (NumberFormatException e) {
-                System.out.print("Invalid input. Please enter a number between 1 and " + N + ": ");
-            }
-        }
-
+        System.out.print("Please choose an option 1..11: ");
+        response = scanner.nextInt();
         return response;
+    }
+
+    //Get user choice as an integer
+    public int int_getChoice (BrandList brand) {
+        int n = brand.size();
+        for (int i = 0; i < n; i++) {
+            System.out.println("" + (i+1) + ". " + brand.get(i));
+        }
+        System.out.print("Please choose an option 1..11: ");
+        response = scanner.nextInt();
+        return response;
+    }
+
+    //Get user choice as an object in the list
+    public Brand ref_getChoice (BrandList options) {
+        int N = options.size();
+        System.out.println("Brand ID List:");
+        do {
+            response = int_getChoice(options);
+        } while ((response < 0) || (response > N));
+        return options.get(response - 1);
     }
 }
